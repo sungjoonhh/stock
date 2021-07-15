@@ -6,48 +6,20 @@
 import sys
 sys.path.append('C:\\Users\\user\\Anaconda3\\libs')
 import postLib
-import dart_fss as dart
 import pandas as pd
 import numpy as np
 from FileReader import FileRader
+from dartConnect import dartConnect
 
 def main ():
 
     filereader = FileRader()
     api_dict = filereader.api_key_read('C:\\Users\\user\\Documents\\api_key.txt')
-
-
     api_key = api_dict['api_key']
     # name = '삼성전자'
     name = input("종목명: ")
+    ds_fs = dartConnect.dart_download_company(name,api_key)
 
-    dart.set_api_key(api_key=api_key)
-    corp_list = dart.get_corp_list()
-    # a = dart.get_corp_list()
-    print(corp_list)
-
-    samsung = corp_list.find_by_corp_name(name, exactly=True)[0]
-    fs = samsung.extract_fs(bgn_de='20200101', report_tp=['annual','quarter'])
-
-    # tms = fs[0]
-    tms2 = fs['is']
-
-    fs.save()
-
-    ds_fs = pd.DataFrame()
-    ds_fs = ds_fs.append(tms2)
-
-    #%%
-    column_list = []
-
-    for j,k in ds_fs.columns.tolist() :
-        if "연결재무제표" in k :
-            column_list.append(str(j))
-        else :
-            column_list.append(str(k))
-
-
-    ds_fs.columns = column_list
 
     post = postLib.PostgresDataClass(host='localhost', database='analysis', user='postgres', password='postgres')
 
