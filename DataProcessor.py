@@ -2,12 +2,8 @@ import pandas as pd
 from dartConnect import dartConnect
 from FileReader import FileRader
 
-class dartConnect:
-    def api_key_read(self, path):
-        filereader = FileRader()
-        api_dict = filereader.read_data('C:\\Users\\user\\Documents\\api_key.txt')
-        api_key = api_dict['api_key']
-        return api_key
+class DataProcessor:
+
 
     def dart_manipulate(self,name,api_key) -> dict:
         ds_fs = dartConnect.dart_download_company(name, api_key)
@@ -28,3 +24,4 @@ class dartConnect:
         # post = postLib.PostgresDataClass(host='localhost', database='analysis', user='postgres', password='postgres')
         # post.insert_list(result_data, 'stock.financial_statements')
         return None
+

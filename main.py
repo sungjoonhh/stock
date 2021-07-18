@@ -13,26 +13,34 @@ from mpl_finance import candlestick2_ohlc
 import pandas_datareader.data as web
 from Calculator import Calculator
 from Telegram import Telegram
+from dartConnect import dartConnect
+from CurrentValueReader import CurrentValueReader
+
+
 def main():
     telg = Telegram()
     end = datetime.datetime.now()
-    start = end - datetime.timedelta(days=60)
+    start = end - datetime.timedelta(days=120)
+    message =''
     calc = Calculator()
+    # dart = dartConnect()
+    currentValue = CurrentValueReader()
 
+    stock_list = [['삼성전자','코스피'],["SK",'코스피'],['DL이앤씨','코스피'],["에이스토리",'코스닥']]
+    for stock, stock_index in stock_list :
+        try :
+            # a = dart.get_company_code("삼성전자")
+            company_list = currentValue.get_stock_code(stock,stock_index)
+            stock_ds = web.DataReader(company_list, "yahoo", start, end)
 
-    stock_ds = web.DataReader("005930.KS", "yahoo", start, end)
+            now_Data = calc.stock_listup(stock_ds,stock)
+            message = message + telg.message_Parsing(now_Data)
 
-    judge_data = pd.DataFrame()
-    judge_data = calc.calcBOL(stock_ds)
+        except Exception as e:  # 모든 예외의 에러 메시지를 출력할 때는 Exception을 사용
+            print('예외가 발생했습니다.', e)
 
-    rsi = calc.calcRSI(stock_ds, stock_ds.index)  # web.DataReader를 통해 받았던 원래 DataFrame에 'RSI'열을 추가
-    judge_data = judge_data.join(rsi)
-    judge_data = judge_data.reset_index()
-    endD = end.strftime('%Y-%m-%d %H:%M:%S')
-    now_Data = judge_data[judge_data['Date']==endD]
-    # now_Data['ticker'] = '삼성전자'
-    # telg.auto_message(now_Data.to_string())
-
+    print(message)
+    telg.auto_message(message)
 
 if __name__ == "__main__":
     main()

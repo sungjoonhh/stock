@@ -1,6 +1,6 @@
 import pandas as pd
 
-class FileRader:
+class FileReader:
     def read_data(self, path) -> dict:
         """
 
