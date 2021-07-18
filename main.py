@@ -8,37 +8,39 @@ sys.path.append('C:\\Users\\user\\Anaconda3\\libs')
 import postLib
 import pandas as pd
 import numpy as np
-from FileReader import FileRader
+import datetime
+from mpl_finance import candlestick2_ohlc
+import pandas_datareader.data as web
+from Calculator import Calculator
+from Telegram import Telegram
 from dartConnect import dartConnect
-
-def main ():
-
-    filereader = FileRader()
-    api_dict = filereader.api_key_read('C:\\Users\\user\\Documents\\api_key.txt')
-    api_key = api_dict['api_key']
-    # name = '삼성전자'
-    name = input("종목명: ")
-    ds_fs = dartConnect.dart_download_company(name,api_key)
+from CurrentValueReader import CurrentValueReader
 
 
-    post = postLib.PostgresDataClass(host='localhost', database='analysis', user='postgres', password='postgres')
+def main():
+    telg = Telegram()
+    end = datetime.datetime.now()
+    start = end - datetime.timedelta(days=120)
+    message =''
+    calc = Calculator()
+    # dart = dartConnect()
+    currentValue = CurrentValueReader()
 
-    ds_fs = ds_fs[ds_fs.columns.drop(list(ds_fs.filter(regex='class')))]
-    ds_fs = ds_fs.drop(['concept_id', 'label_en'], axis=1)
-    ds_fs = ds_fs.replace('', None)
+    stock_list = [['삼성전자','코스피'],["SK",'코스피'],['DL이앤씨','코스피'],["에이스토리",'코스닥']]
+    for stock, stock_index in stock_list :
+        try :
+            # a = dart.get_company_code("삼성전자")
+            company_list = currentValue.get_stock_code(stock,stock_index)
+            stock_ds = web.DataReader(company_list, "yahoo", start, end)
 
-    unpivot = ds_fs.melt(id_vars=['label_ko'], var_name='date', value_name='values')
-    unpivot['name'] = name
-    unpivot['date'] = pd.to_datetime(unpivot['date'].str.split('-').str[1])
-    unpivot = unpivot.where(unpivot.notnull(), None)
+            now_Data = calc.stock_listup(stock_ds,stock)
+            message = message + telg.message_Parsing(now_Data)
 
-    unpivot = unpivot[['name', 'label_ko', 'values', 'date']]
+        except Exception as e:  # 모든 예외의 에러 메시지를 출력할 때는 Exception을 사용
+            print('예외가 발생했습니다.', e)
 
-    result_data = [tuple(x) for x in unpivot.values]
+    print(message)
+    telg.auto_message(message)
 
-    post.insert_list(result_data, 'stock.financial_statements')
-
-
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
