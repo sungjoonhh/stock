@@ -26,14 +26,16 @@ def main():
     # dart = dartConnect()
     currentValue = CurrentValueReader()
 
-    stock_list = [['삼성전자','코스피'],["SK",'코스피'],['DL이앤씨','코스피'],["에이스토리",'코스닥']]
+    stock_list = [['삼성전자','코스피'],["SK",'코스피'],['DL이앤씨','코스피'],["하이브",'코스피']]
     for stock, stock_index in stock_list :
         try :
             # a = dart.get_company_code("삼성전자")
             company_list = currentValue.get_stock_code(stock,stock_index)
             stock_ds = web.DataReader(company_list, "yahoo", start, end)
 
-            now_Data = calc.stock_listup(stock_ds,stock)
+
+            table = calc.supply_toDatFrame(company_list)
+            now_Data = calc.stock_listup(stock_ds,stock,table)
             message = message + telg.message_Parsing(now_Data)
 
         except Exception as e:  # 모든 예외의 에러 메시지를 출력할 때는 Exception을 사용

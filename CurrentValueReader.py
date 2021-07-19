@@ -36,3 +36,16 @@ class CurrentValueReader :
         elif stock_index =='코스닥':
             now_price = no_today.text + ".KQ"
         return now_price
+
+
+    def get_supply(self,company_code):
+        company_code = company_code.split('.')[0]
+        url = "https://finance.naver.com/item/frgn.nhn?code={company_code}&page=1".format(company_code = company_code)
+        headers = {'User-Agent': 'Mozilla/5.0'}
+        result = requests.get(url, headers=headers)
+        bs_obj = BeautifulSoup(result.content, "html.parser")
+        bs_obj = bs_obj.find("div", {"section inner_sub"})
+        blind = bs_obj.find("table", {'summary': "외국인 기관 순매매 거래량에 관한표이며 날짜별로 정보를 제공합니다."})
+
+
+        return str(blind)

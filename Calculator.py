@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import pandas as pd
 import numpy as np
-
+from CurrentValueReader import CurrentValueReader
 
 # 차트를 이룰 데이터 가져오기, 2019 1.1 ~ 2019.11.1 기간의 삼성전자 주가 정보 갖고 오기
 
@@ -54,7 +54,7 @@ class Calculator:
         return judge_data
 
 
-    def stock_listup(self,stock_ds,stock_name) :
+    def stock_listup(self,stock_ds,stock_name,table) :
         judge_data = pd.DataFrame()
 
         judge_data = self.calcBOL(stock_ds)
@@ -64,13 +64,33 @@ class Calculator:
 
         rsi = self.calcRSI(stock_ds, stock_ds.index)  # web.DataReader를 통해 받았던 원래 DataFrame에 'RSI'열을 추가
         judge_data = judge_data.join(rsi)
+        judge_data = judge_data.join(table)
+
+
         judge_data = judge_data.reset_index()
 
+
+
         judge_data['ticker'] = stock_name
+
+
         now_Data = judge_data.iloc[-1]
 
         return now_Data
 
 
-    # %%
 
+    def supply_toDatFrame(self,company_code):
+        current = CurrentValueReader()
+        html = current.get_supply(company_code)
+
+        df = pd.read_html(html)[0]
+        df = df.iloc[:, :7]
+        df = df.dropna()
+
+        df.columns = ['Date', 'close', 'dod', 'dod_percent', 'volumns', 'agency', 'foreigner']
+        df["Date"] = pd.to_datetime(df["Date"])
+        df.index = df['Date']
+        df = df[['agency', 'foreigner']]
+
+        return df
