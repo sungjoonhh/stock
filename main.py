@@ -15,7 +15,7 @@ from Calculator import Calculator
 from Telegram import Telegram
 from dartConnect import dartConnect
 from CurrentValueReader import CurrentValueReader
-
+from KrxReader import KrxReader
 
 def main():
     telg = Telegram()
@@ -25,17 +25,21 @@ def main():
     calc = Calculator()
     # dart = dartConnect()
     currentValue = CurrentValueReader()
+    krx = KrxReader()
+    stock_list = [['코스피','한국'],['코스닥','한국'],['삼성전자','한국'],['에이스토리','한국'],['DL이앤씨','한국']]
 
-    stock_list = [['삼성전자','코스피'],["SK",'코스피'],['DL이앤씨','코스피'],["하이브",'코스피']]
-    for stock, stock_index in stock_list :
+    for stock, stock_market in stock_list :
         try :
             # a = dart.get_company_code("삼성전자")
-            company_list = currentValue.get_stock_code(stock,stock_index)
-            stock_ds = web.DataReader(company_list, "yahoo", start, end)
+            company_code = currentValue.get_stock_code(stock)
+            if stock_market =='미국':
+                company_stock = web.DataReader('CROX', "yahoo", start, end)
+            elif stock_market =='한국' :
+                company_stock = krx.get_stock_data(start, end, company_code)
 
+            company_trade_value = krx.get_market_trade_value(start, end, company_code)
 
-            table = calc.supply_toDatFrame(company_list)
-            now_Data = calc.stock_listup(stock_ds,stock,table)
+            now_Data = calc.stock_listup(company_stock,stock,company_trade_value)
             message = message + telg.message_Parsing(now_Data)
 
         except Exception as e:  # 모든 예외의 에러 메시지를 출력할 때는 Exception을 사용

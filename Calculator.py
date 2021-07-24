@@ -54,43 +54,36 @@ class Calculator:
         return judge_data
 
 
-    def stock_listup(self,stock_ds,stock_name,table) :
-        judge_data = pd.DataFrame()
 
-        judge_data = self.calcBOL(stock_ds)
-        bol_80 = self.calcBOL_80(stock_ds)
-        judge_data = judge_data.join(bol_80)
-        judge_data['close'] = stock_ds['Close']
+    def calcVolumn(self,stock_ds):
+        period = [1,3,7]
+        agency_list = []
+        foreigner_list= []
+        ant_list = []
+        for i in period:
+            agency_list += [str(round(pd.to_numeric(stock_ds['agency']).rolling(i).sum().iloc[-1]/1000,1))+'K'+'(' + str(i)+'일)']
+            foreigner_list += [str(round(pd.to_numeric(stock_ds['foreigner']).rolling(i).sum().iloc[-1]/1000,1))+'K' + '('+str(i)+'일)']
+            ant_list += [str(round(pd.to_numeric(stock_ds['ant']).rolling(i).sum().iloc[-1] / 1000,1)) + 'K'+'(' + str(i) + '일)']
 
-        rsi = self.calcRSI(stock_ds, stock_ds.index)  # web.DataReader를 통해 받았던 원래 DataFrame에 'RSI'열을 추가
-        judge_data = judge_data.join(rsi)
-        judge_data = judge_data.join(table)
-
-
-        judge_data = judge_data.reset_index()
-
-
-
-        judge_data['ticker'] = stock_name
-
-
-        now_Data = judge_data.iloc[-1]
+        now_Data = stock_ds.copy().iloc[-1]
+        now_Data['foreigner'] = "[" + ", ".join(foreigner_list) + "]"
+        now_Data['agency'] = "[" + ", ".join(agency_list) + "]"
+        now_Data['ant'] = "[" + ", ".join(ant_list) + "]"
 
         return now_Data
 
+    def stock_listup(self,stock_ds,stock_name,company_trade_value) :
+        judge_data = pd.DataFrame()
+
+        judge_data = self.calcBOL(stock_ds)
+        judge_data = judge_data.join(self.calcBOL_80(stock_ds))
+        judge_data['close'] = stock_ds['Close']
+        judge_data = judge_data.join(self.calcRSI(stock_ds, stock_ds.index))
+        judge_data = judge_data.join(company_trade_value)
+        judge_data = judge_data.reset_index()
+        judge_data['ticker'] = stock_name
+
+        now_Data = self.calcVolumn(judge_data)
 
 
-    def supply_toDatFrame(self,company_code):
-        current = CurrentValueReader()
-        html = current.get_supply(company_code)
-
-        df = pd.read_html(html)[0]
-        df = df.iloc[:, :7]
-        df = df.dropna()
-
-        df.columns = ['Date', 'close', 'dod', 'dod_percent', 'volumns', 'agency', 'foreigner']
-        df["Date"] = pd.to_datetime(df["Date"])
-        df.index = df['Date']
-        df = df[['agency', 'foreigner']]
-
-        return df
+        return now_Data
