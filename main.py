@@ -26,7 +26,7 @@ def main():
     # dart = dartConnect()
     currentValue = CurrentValueReader()
     krx = KrxReader()
-    stock_list = [['코스피','한국'],['코스닥','한국'],['삼성전자','한국'],['에이스토리','한국'],['DL이앤씨','한국']]
+    stock_list = [['코스피','한국'],['코스닥','한국'],['SK이노베이션','한국'],['에이스토리','한국'],['DL이앤씨','한국']]
 
     for stock, stock_market in stock_list :
         try :
