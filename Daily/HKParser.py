@@ -6,7 +6,6 @@ Created on Mon Jul 19 20:26:02 2021
 """
 import requests
 import pandas as pd
-from postLib import PostgresDataClass
 
 from bs4 import BeautifulSoup
 import datetime

@@ -5,18 +5,16 @@
 
 import sys
 sys.path.append('C:\\Users\\user\\Anaconda3\\libs')
-import postLib
 import pandas as pd
-import numpy as np
 import datetime
 # from mpl_finance import candlestick2_ohlc
 import pandas_datareader.data as web
 from Calculator import Calculator
 from Telegram import Telegram
-from dartConnect import dartConnect
 from CurrentValueReader import CurrentValueReader
 from KrxReader import KrxReader
-from HKParser import HKParser
+from Daily.HKParser import HKParser
+from Daily.ThemaParser import ThemaParser
 
 def main():
     telg = Telegram()
@@ -26,6 +24,8 @@ def main():
     calc = Calculator()
     # dart = dartConnect()
     hk = HKParser()
+    thema = ThemaParser()
+
     currentValue = CurrentValueReader()
     krx = KrxReader()
     if (int(end.strftime('%H')) >= 17) and (int(end.strftime('%H')) <= 24) or (int(end.strftime('%H')) >= 0) and (int(end.strftime('%H')) < 9) :
