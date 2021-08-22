@@ -17,15 +17,40 @@ class Calculator:
     def __init__(self):
         self.period = 14
 
-    def calcRSI(self,stock_ds, date_index):
-        U = np.where(stock_ds.diff(1)['Close'] > 0, stock_ds.diff(1)['Close'],0)  # df.diff를 통해 (기준일 종가 - 기준일 전일 종가)를 계산하여 0보다 크면 증가분을 감소했으면 0을 넣어줌
-        D = np.where(stock_ds.diff(1)['Close'] < 0, stock_ds.diff(1)['Close'] * (-1),0)  # df.diff를 통해 (기준일 종가 - 기준일 전일 종가)를 계산하여 0보다 작으면 감소분을 증가했으면 0을 넣어줌
-        AU = pd.DataFrame(U, index=date_index).rolling(window=self.period).mean()  # AU, period=14일 동안의 U의 평균
-        AD = pd.DataFrame(D, index=date_index).rolling(window=self.period).mean()  # AD, period=14일 동안의 D의 평균
+    def calcRSI2(self,stock_ds, date_index):
+        U = np.where(stock_ds.diff(1)['Close'] > 0, stock_ds.diff(1)['Close'],0)                                                # df.diff를 통해 (기준일 종가 - 기준일 전일 종가)를 계산하여 0보다 크면 증가분을 감소했으면 0을 넣어줌
+        D = np.where(stock_ds.diff(1)['Close'] < 0, stock_ds.diff(1)['Close'] * (-1),0)                                         # df.diff를 통해 (기준일 종가 - 기준일 전일 종가)를 계산하여 0보다 작으면 감소분을 증가했으면 0을 넣어줌
+        AU = (pd.DataFrame(U, index=date_index).rolling(window=self.period).sum() + pd.DataFrame(U, index=date_index))/14       # AU, period=14일 동안의 U의 평균
+        TU = pd.DataFrame(U, index=date_index)
+        AD = (pd.DataFrame(D, index=date_index).rolling(window=self.period).sum() + pd.DataFrame(D, index=date_index))/14       # AD, period=14일 동안의 D의 평균
+        TD =pd.DataFrame(D, index=date_index)
         rsi = AU / (AD + AU) * 100  # 0부터 1로 표현되는 RSI에 100을 곱함
+        # rsi = AU / (AD + AU) * 100  # 0부터 1로 표현되는 RSI에 100을 곱함
         signal = rsi.rolling(window=9).mean()
         rsi.columns = ['rsi']
         rsi['signal'] = signal
+        return rsi
+
+    def calcRSI(self,stock_ds, date_index, ema=True):
+        close_delta = stock_ds['Close'].diff()
+
+        # Make two series: one for lower closes and one for higher closes
+        up = close_delta.clip(lower=0)
+        down = -1 * close_delta.clip(upper=0)
+
+        if ema:
+            # Use exponential moving average
+            ma_up = up.ewm(com=self.period - 1, adjust=True, min_periods=self.period).mean()
+            ma_down = down.ewm(com=self.period - 1, adjust=True, min_periods=self.period).mean()
+        else:
+            # Use simple moving average
+            ma_up = up.rolling(window=self.period, adjust=False).mean()
+            ma_down = down.rolling(window=self.period, adjust=False).mean()
+
+        rsi = ma_up / ma_down
+        rsi = 100 - (100 / (1 + rsi))
+        rsi = pd.DataFrame(rsi)
+        rsi.columns = ['rsi']
         return rsi
 
 
@@ -72,7 +97,7 @@ class Calculator:
 
         return now_Data
 
-    def stock_listup(self,stock_ds,stock_name,company_trade_value) :
+    def stock_listup(self,stock_ds,stock_name,company_trade_value,stock_market) :
         judge_data = pd.DataFrame()
 
         judge_data = self.calcBOL(stock_ds)
@@ -83,7 +108,10 @@ class Calculator:
         judge_data = judge_data.reset_index()
         judge_data['ticker'] = stock_name
 
-        now_Data = self.calcVolumn(judge_data)
+        if stock_market =='한국' :
+            judge_data = self.calcVolumn(judge_data)
 
+        else :
+            judge_data = judge_data.iloc[-1]
 
-        return now_Data
+        return judge_data

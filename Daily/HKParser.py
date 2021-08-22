@@ -5,14 +5,14 @@ Created on Mon Jul 19 20:26:02 2021
 @author: user
 """
 import requests
-from io import BytesIO
 import pandas as pd
-import seaborn as sns
-from tqdm import tqdm
 
 from bs4 import BeautifulSoup
 import datetime
 import re
+from FileReader   import FileReader
+from postLib import PostgresDataClass
+
 
 class HKParser :
     def __init__(self):
@@ -23,7 +23,15 @@ class HKParser :
             "Accept-Language": "en-US,en;q=0.5",
             "Accept-Encoding": "gzip, deflate"}
 
+        filereader = FileReader()
+        self.post_dict = filereader.read_data('C:\\Users\\user\\Documents\\postgres.txt')
+        self.user = self.post_dict['user']
+        self.database = self.post_dict['database']
+        self.password = self.post_dict['password']
+
     def hankyung_consensus_webcrawling(self,start,end) :
+
+
 
         df = pd.DataFrame()
 
@@ -121,4 +129,9 @@ class HKParser :
                     print('예외가 발생하였습니다.', e)
             start += datetime.timedelta(days=1)
 
-        return df[['date', 'company', 'company_code', 'desc', 'price', 'opinion', 'writer', 'investment', 'category', 'reference','pdf']]
+        df[['date', 'company', 'company_code', 'desc', 'price', 'opinion', 'writer', 'investment', 'category', 'reference','pdf']]
+        df['price'] = df['price'].astype(int)
+        df['date'] = df['date'].astype({'date': 'datetime64[ns]'})
+        tuples = [tuple(x) for x in df.values.tolist()]
+        post = PostgresDataClass(self.host, self.database, self.user, self.password)
+        post.insert_list(tuples, 'stock.hk_consensus')
