@@ -49,11 +49,6 @@ while start <= end :
     
     start += datetime.timedelta(days=1)
 
-
-
-
-
-
     print(current_day)
     post.execute("""insert into krx.daily_high52
         select c.*,d.high52
@@ -62,6 +57,8 @@ while start <= end :
         left join krx.company_ticker b
         on a.ticker = b.ticker
         where a.update_time = timestamp'{date}'
+        and a.open !=0
+
         ) c
         left join (
         	select ticker,max(close) as high52
@@ -72,49 +69,6 @@ while start <= end :
         on c.ticker = d.ticker
         where close = high52
         on conflict do nothing""".format(date = current_day))
-
-#%%
-
-    post.execute("""		insert into krx.daily_high52 
-        select c.*,d.high52 
-        from (
-	        select b.company_name,a.ticker,a.close,a.update_time
-	        from krx.daily_market a
-	        left join krx.company_ticker b
-	        on a.ticker = b.ticker
-	        where a.open !=0
-        ) c
-        left join (
-        	select ticker,update_time, max(close) over (partition by ticker order by update_time asc rows between 364 preceding and current ROW) as high52
-        	from krx.daily_market 
-        )d
-        on c.ticker = d.ticker
-        and c.update_time = d.update_time
-        where c.update_time > timestamp '{date}' - interval '52 week'
-        and c.close = d.high52
-        on conflict do nothing 
-        """.format(date= current_day))
-
-
-
-
-
-
-#%%
-
-
-# lst = []
-# for ticker in stock.get_market_ticker_list(market='KOSDAQ'):
-#         company = stock.get_market_ticker_name(ticker)
-#         lst = lst + [(ticker,company)]
-
-#         #%%
-        
-# post = PostgresDataClass('192.168.0.3','stock','postgres','tjdwns00!')
-# post.insert_list(lst, 'krx.company_ticker')
-
-
-
 
 
 
