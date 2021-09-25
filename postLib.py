@@ -67,7 +67,7 @@ class PostgresDataClass():
     ##query execute
     def execute(self, sql, param=()):
         with self.connect() as conn:
-            with self.get_cusror(conn) as cur:
+            with self.get_cursor(conn) as cur:
                 try:
                     cur.execute(sql, param)
                     conn.commit()

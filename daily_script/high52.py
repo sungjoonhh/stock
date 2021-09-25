@@ -8,8 +8,7 @@ import pykrx
 from pykrx import stock
 import datetime
 import sys
-sys.path.append('C:\\Users\\user\\Anaconda3\\libs')
-
+sys.path.append('C:\\Users\\sungjoon\\libs')
 from postLib import  PostgresDataClass
 
 

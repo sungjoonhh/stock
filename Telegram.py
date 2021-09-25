@@ -49,9 +49,10 @@ class Telegram :
         if message == '':
             message = '[해당 종목 없음]'
         filereader = FileReader()
-        telg_dict = filereader.read_data('C:\\Users\\user\\Documents\\telegram.txt')
+        telg_dict = filereader.read_data('C:\\Users\\sungjoon\\libs\\telegram.txt')
         token = telg_dict['token']
         chat_id = telg_dict['chat_id']
         bot = telegram.Bot(token=token)
         chat_id = chat_id
+        print(message)
         bot.sendMessage(chat_id=chat_id, text=message)

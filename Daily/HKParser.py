@@ -10,7 +10,7 @@ import pandas as pd
 from bs4 import BeautifulSoup
 import datetime
 import re
-from FileReader   import FileReader
+from FileReader import FileReader
 from postLib import PostgresDataClass
 
 
@@ -24,7 +24,7 @@ class HKParser :
             "Accept-Encoding": "gzip, deflate"}
 
         filereader = FileReader()
-        self.post_dict = filereader.read_data('C:\\Users\\user\\Documents\\postgres.txt')
+        self.post_dict = filereader.read_data('C:\\Users\\sungjoon\\libs\\postgres.txt')
         self.user = self.post_dict['user']
         self.database = self.post_dict['database']
         self.password = self.post_dict['password']
