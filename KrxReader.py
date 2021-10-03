@@ -28,6 +28,7 @@ class KrxReader :
             return self.get_market_kosdaq( start, end, company_code)
         else :
             df = stock.get_market_ohlcv_by_date(start.strftime("%Y%m%d"), end.strftime("%Y%m%d"), company_code)
+            df = df.dropna(axis=0)
             return self.stock_data_column_change(df)
 
 

@@ -4,20 +4,24 @@ Created on Tue Sep 14 21:40:26 2021
 
 @author: user
 """
+import pandas as pd
 import pykrx
 from pykrx import stock
 import datetime
 import sys
 sys.path.append('C:\\Users\\sungjoon\\libs')
+sys.path.append('C:\\Users\\sungjoon\\GIT\\stock')
 from postLib import  PostgresDataClass
-
-
+# from Telegram import Telegram
+from FileReader import FileReader
+import telegram
+import dataframe_image as dfi
 
 #%%
 
-
+# telg = Telegram()
 end = datetime.datetime.now()
-start = end - datetime.timedelta(days=0)
+start = end - datetime.timedelta(days=2)
 post = PostgresDataClass('192.168.0.3','stock','postgres','tjdwns00!')
 while start <= end :
     current_day = start.strftime('%Y%m%d')
@@ -70,5 +74,40 @@ while start <= end :
         where close = high52
         on conflict do nothing""".format(date = current_day))
 
+#%%
+    high52_df = post.select_dataframe("""
+      select array_agg(d.thema_name) as thema,c.company_name,c.ticker,c.close,c.update_time,c.high52,c.cnt
+      from (
+    	select a.*,b.cnt
+    	from krx.daily_high52 a
+    	left join (
+    		select company_name,ticker,count(*) as cnt
+    		from krx.daily_high52
+    		where update_time <= timestamp :update_time
+    		and update_time >= timestamp '{update_time}' - interval '14 day'
+    		--and company_name ='효성첨단소재'
+    		group by company_name,ticker
+    	)b
+    	on a.ticker =b.ticker
+    	where a.update_time = timestamp '{update_time}'
+    )c
+    left join stock.thema_stock d
+    on c.company_name = d.company_name
+    group by c.company_name,c.ticker,c.close,c.update_time,c.high52,c.cnt
+    order by cnt desc""".format(update_time = current_day))
+    dfi.export(high52_df, 'C:\\Users\\sungjoon\\GIT\\stock\\daily_script\\high52_image\\{date}.png'.format(date = current_day), max_cols=-1, max_rows=-1)
 
 
+    high52_html = '<pre>'+ high52_df.to_html()+'</pre>'
+
+
+    filereader = FileReader()
+    telg_dict = filereader.read_data('C:\\Users\\sungjoon\\libs\\telegram.txt')
+    token = telg_dict['token']
+    chat_id = telg_dict['chat_id']
+    bot = telegram.Bot(token=token)
+
+    chat_id = chat_id
+    print(high52_html)
+    bot.send_pohth(chat_id=chat_id, text=high52_html,parse_mode = telegram.ParseMode.HTML)
+    bot.send_photo(chat_id, photo=open('C:\\Users\\sungjoon\\GIT\\stock\\daily_script\\high52_image\\{date}.png'.format(date = current_day), 'rb'))
