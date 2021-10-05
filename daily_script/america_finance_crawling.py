@@ -42,7 +42,7 @@ financialIndex= [[2,'손익계산서'],
 
 investmentIndex =[[1,'투자지표']]
 
-ticker = 'AAPL'
+ticker = 'UPS'
 
 #%%
 all_df = pd.DataFrame()
