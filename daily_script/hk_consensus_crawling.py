@@ -120,5 +120,5 @@ df['date'] = df['date'].astype({'date': 'datetime64[ns]'})
 #%%
 tuples = [tuple(x) for x in df.values.tolist()]
 
-post = PostgresDataClass('localhost','stock','postgres','postgres')
+post = PostgresDataClass('192.168.0.3','stock','postgres','tjdwns00!')
 post.insert_list(tuples, 'stock.hk_consensus')

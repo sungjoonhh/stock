@@ -77,5 +77,5 @@ df1.to_excel('C:\\Users\\user\\thema2.xlsx')
 
 tuples = [tuple(x) for x in df.values.tolist()]
 
-post = PostgresDataClass('localhost','stock','postgres','postgres')
+post = PostgresDataClass('192.168.0.3','stock','postgres','tjdwns00!')
 post.insert_list(tuples, 'stock.thema_stock')
