@@ -10,10 +10,7 @@ from pykrx import stock
 import datetime
 import sys
 sys.path.append('C:\\Users\\sungjoon\\libs')
-<<<<<<< Updated upstream
 sys.path.append('C:\\Users\\sungjoon\\GIT\\stock')
-=======
->>>>>>> Stashed changes
 from postLib import  PostgresDataClass
 # from Telegram import Telegram
 from FileReader import FileReader
@@ -65,10 +62,6 @@ while start <= end :
         on a.ticker = b.ticker
         where a.update_time = timestamp'{date}'
         and a.open !=0
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
         ) c
         left join (
         	select ticker,max(close) as high52
@@ -80,7 +73,6 @@ while start <= end :
         where close = high52
         on conflict do nothing""".format(date = current_day))
 
-<<<<<<< Updated upstream
 #%%
     high52_df = post.select_dataframe("""
         select e.*,f.ranking
@@ -112,8 +104,6 @@ while start <= end :
         order by cnt desc
         """.format(update_time = current_day))
     dfi.export(high52_df, 'C:\\Users\\sungjoon\\GIT\\stock\\daily_script\\high52_image\\{date}.png'.format(date = current_day), max_cols=-1, max_rows=-1)
-=======
-
 
 
 #%%
@@ -128,9 +118,6 @@ while start <= end :
         
 # post = PostgresDataClass('192.168.0.3','stock','postgres','tjdwns00!')
 # post.insert_list(lst, 'krx.company_ticker')
-
->>>>>>> Stashed changes
-
 
     high52_html = '<pre>'+ high52_df.to_html()+'</pre>'
 

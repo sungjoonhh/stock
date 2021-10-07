@@ -30,19 +30,11 @@ def main():
     krx = KrxReader()
     if (int(end.strftime('%H')) >= 17) and (int(end.strftime('%H')) <= 24) or (int(end.strftime('%H')) >= 0) and (int(end.strftime('%H')) < 9) :
         stock_market = '미국'
-<<<<<<< Updated upstream
         stock_list = ['^GSPC','^IXIC','^DJI','^RUT', 'AAPL', 'NVDA', 'DNMR','TEAM','PLUG','BARK','KRBN','CROX','TSLA','PLUG','BE']
         # stock_list = ['DNMR']
     else :
         stock_market = '한국'
-        stock_list = ['DL이앤씨','에이스토리','카카오','네이버','SK이노베이션','와이엔텍','SK케미칼','에코프로비엠','DB하이텍','효성첨단소재','상아프론테크','에코프로비엠','엘앤에프','휴켐스','고려아연']
-=======
-        stock_list = ['^GSPC','^IXIC','^DJI','^RUT', 'AAPL', 'NVDA', 'DNMR','TEAM','PLUG','BARK','KRBN','CROX']
-        # stock_list = ['DNMR']
-    else :
-        stock_market = '한국'
         stock_list = ['DL이앤씨','에이스토리','카카오','네이버','SK이노베이션','와이엔텍','SK케미칼','에코프로비엠','DB하이텍','에이스토리','효성첨단소재','상아프론테크']
->>>>>>> Stashed changes
     now_Data = []
     company_trade_value = pd.DataFrame()
     for stock in stock_list :
