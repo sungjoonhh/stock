@@ -19,7 +19,7 @@ class Telegram :
         ant = str(now_Data['ant'])
         message = ''
 
-        if float(close) <= float(bol_down_20) or float(close) >= float(bol_upper_20) or float(rsi) <= 30 or float(rsi) >= 70:
+        if float(close) <= float(bol_down_80) or float(close) >= float(bol_upper_80) or float(rsi) <= 30 or float(rsi) >= 70:
             message = ('['+ticker+'] '+date +'\n' +'1. 현재주가 : '+close+' \n'+'2. 볼린저밴드 상단(20일) : '+bol_upper_20+' \n'+'3. 볼린저밴드 하단(20일선) : '+bol_down_20 +'\n'+\
                '4. 볼린저밴드 상단(80일선) : '+bol_upper_80+' \n'+'5. 볼린저밴드 하단(80일선) : '+bol_down_80 +'\n'+'6. RSI : '+rsi +'\n'+'7. 기관 순매매 : \n'+agency+'\n'+'8. 외국인 순매매 : \n'+foreigner+'\n'+\
                 '9. 개미 순매매 : \n'+ant+'\n\n')
@@ -39,7 +39,7 @@ class Telegram :
         message = ''
 
 
-        if float(close) <= float(bol_down_20) or float(close) >= float(bol_upper_20) or float(rsi) <= 30 or float(rsi) >= 70:
+        if float(close) <= float(bol_down_80) or float(close) >= float(bol_upper_80) or float(rsi) <= 30 or float(rsi) >= 70:
             message =  ('['+ticker+'] '+date +'\n' +'1. 현재주가 : '+close+' \n'+'2. 볼린저밴드 상단(20일) : '+bol_upper_20+' \n'+'3. 볼린저밴드 하단(20일선) : '+bol_down_20 +'\n'+\
                '4. 볼린저밴드 상단(80일선) : '+bol_upper_80+' \n'+'5. 볼린저밴드 하단(80일선) : '+bol_down_80 +'\n'+'6. RSI : '+rsi +'\n\n')
         return message

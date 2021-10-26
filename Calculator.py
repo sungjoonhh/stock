@@ -94,7 +94,7 @@ class Calculator:
         now_Data['foreigner'] = "[" + ", ".join(foreigner_list) + "]"
         now_Data['agency'] = "[" + ", ".join(agency_list) + "]"
         now_Data['ant'] = "[" + ", ".join(ant_list) + "]"
-
+        now_Data = now_Data.dropna(axis=0)
         return now_Data
 
     def stock_listup(self,stock_ds,stock_name,company_trade_value,stock_market) :
