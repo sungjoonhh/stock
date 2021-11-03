@@ -30,7 +30,7 @@ def main():
     krx = KrxReader()
     if (int(end.strftime('%H')) >= 23) and (int(end.strftime('%H')) <= 24) or (int(end.strftime('%H')) >= 0) and (int(end.strftime('%H')) < 9) :
         stock_market = '미국'
-        stock_list = ['^GSPC','^IXIC','^DJI','^RUT', 'AAPL', 'NVDA', 'DNMR','TEAM','PLUG','BARK','KRBN','CROX','TSLA','PLUG','BE']
+        stock_list = ['^GSPC','^IXIC','^DJI','^RUT', 'AAPL', 'NVDA', 'DNMR','TEAM','PLUG','BARK','KRBN','CROX','TSLA','BE']
         # stock_list = ['DNMR']
     else :
         stock_market = '한국'
