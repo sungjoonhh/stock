@@ -34,7 +34,7 @@ def main():
         # stock_list = ['DNMR']
     else :
         stock_market = '한국'
-        stock_list = ['DL이앤씨','에이스토리','카카오','네이버','SK이노베이션','와이엔텍','SK케미칼','에코프로비엠','DB하이텍','효성첨단소재','상아프론테크','엘앤에프','LG화학','코스닥','코스피']
+        stock_list = ['DL이앤씨','에이스토리','카카오','네이버','SK이노베이션','와이엔텍','SK케미칼','에코프로비엠','DB하이텍','효성첨단소재','상아프론테크','엘앤에프','LG화학','효성티앤씨','코스닥','코스피']
     now_Data = []
     company_trade_value = pd.DataFrame()
     for stock in stock_list :
