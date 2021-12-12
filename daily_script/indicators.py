@@ -16,6 +16,8 @@ from FileReader import FileReader
 import telegram
 import dataframe_image as dfi
 import matplotlib
+import datetime
+from pykrx import stock
 matplotlib.rcParams['font.family'] ='Malgun Gothic'
 matplotlib.rcParams['axes.unicode_minus'] =False
 
@@ -48,7 +50,11 @@ data_list2 = [['DGS10','DGS10']
              ,['DGS2','DGS2']
              ]
 
-value_list = []
+data_list3 = [['KOSPI_PER','1001'],
+              ['KOSDAQ_PER','2001']]
+
+data_list4 = [['KOSPI_PBR','1001'],
+              ['KOSDAQ_PBR','2001']]
 
 
 #%%
@@ -59,28 +65,54 @@ chat_id = telg_dict['chat_id']
 bot = telegram.Bot(token=token)
 
 chat_id = chat_id
+
+
+end = datetime.datetime.now().strftime('%Y-%m-%d')
+start = (datetime.datetime.now() - datetime.timedelta(days=365)).strftime('%Y-%m-%d')
+
+current_day = start
 #%%
-fig, axs = plt.subplots(len(data_list),constrained_layout=True,figsize=(15,15))
+fig, axs = plt.subplots(len(data_list)+len(data_list2)+len(data_list3)+len(data_list4),constrained_layout=True,figsize=(15,15))
 index = 0
 for name,ticker in data_list :
-    date = fdr.DataReader(ticker, start='2020-11-29')
+    date = fdr.DataReader(ticker, start=start)
     print(index)
     axs[index].plot(date['Close'].copy())
-    axs[index].set_title(str(ticker))
+    axs[index].set_title(str(ticker)  + ' : ' + str(date['Close'].tail(1).values[0]))
     # value_list = value_list + [daily_calc(date,name)]
     index += 1
     
-bot.send_photo(plt)
+
+for name,ticker in data_list2 :
+    data = fdr.DataReader(ticker, start=start, data_source='fred')
+    data['Close'] = data[name]
+    axs[index].plot(data['Close'].copy())
+    axs[index].set_title(str(ticker) + ' : ' + str(data['Close'].tail(1).values[0]))
+    index += 1
+    # value_list = value_list + [daily_calc(data,name)]
+
+
+for name,ticker in data_list3 :
+    data = stock.get_index_fundamental(start, end, ticker)
+    data['PER'] = data['PER']
+    axs[index].plot(data['PER'].copy())
+    axs[index].set_title(str(name) + ' : ' + str(data['PER'].tail(1).values[0]))
+    index += 1
+     
+for name,ticker in data_list4 :
+    data = stock.get_index_fundamental(start, end, ticker)
+    data['PBR'] = data['PBR']
+    axs[index].plot(data['PBR'].copy())
+    axs[index].set_title(str(name) + ' : ' + str(data['PBR'].tail(1).values[0]))
+    index += 1
+
+plt.savefig('C:\\Users\\sungjoon\\Documents\\a.png',dpi=300)
 
 bot.send_photo(chat_id, caption = '지수', photo=open(
     'C:\\Users\\sungjoon\\Documents\\a.png', 'rb'))
 
-plt.savefig('C:\\Users\\sungjoon\\Documents\\a.png',dpi=300)
+
 #%%
-for name,ticker in data_list2 :
-    data = fdr.DataReader(ticker, start='2020-11-29', data_source='fred')
-    data['Close'] = data[name]
-    value_list = value_list + [daily_calc(data,name)]
 
 telegram_txt = ''
 for value in value_list :
@@ -92,6 +124,11 @@ for value in value_list :
 # bot.sendMessage(chat_id, text=telegram_txt)
 
 
+#%%
+from pykrx import stock
+df = stock.get_index_fundamental("2021-01-01", "2021-12-10", "2001")       
+
+df = stock.get_index_fundamental("20211122")       
 
 
 #%%
