@@ -21,7 +21,7 @@ import dataframe_image as dfi
 # %%
 
 # telg = Telegram()
-high_value_list = [13,26,52]
+high_value_list = [26]
 end = datetime.datetime.now()
 start = end - datetime.timedelta(days=0)
 post = PostgresDataClass('192.168.0.3', 'stock', 'postgres', 'tjdwns00!')
@@ -76,7 +76,7 @@ while start <= end:
         # %%
         high_name_df = post.select_dataframe("""
             select e.*,f.ranking
-            from (select array_agg(d.thema_name) as thema,c.company_name,c.ticker,c.close,c.update_time,c.{high_name},c.cnt
+            from (select array_agg(d.thema_name) as thema,c.company_name,c.ticker,c.close,c.update_time,c.{high_name},concat(c.cnt::varchar, '/{high_value}') as cnt
             from (
                 select a.*,b.cnt
                 from krx.daily_{high_name} a
@@ -101,7 +101,7 @@ while start <= end:
                 where update_time = timestamp '{update_time}'
             )f
             on e.ticker = f.ticker 
-            order by cnt desc
+            order by thema desc
             """.format(update_time=current_day,high_name=high_name,high_value = high_value))
         dfi.export(high_name_df,
                 'C:\\Users\\sungjoon\\GIT\\stock\\daily_script\\{high_name}_image\\{date}.png'.format(date=current_day,high_name=high_name,high_value = high_value),
