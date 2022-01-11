@@ -136,8 +136,8 @@ for name,ticker,data_source in data_list5 :
 
 plt.savefig('C:\\Users\\sungjoon\\GIT\\stock\\daily_script\\indicator_image\\{date}.png'.format(date=current_day),dpi=300)
 
-# bot.send_photo(chat_id, caption = '지수', photo=open(
-#     'C:\\Users\\sungjoon\\GIT\\stock\\daily_script\\indicator_image\\{date}.png'.format(date=current_day), 'rb'))
+bot.send_photo(chat_id, caption = '지수', photo=open(
+    'C:\\Users\\sungjoon\\GIT\\stock\\daily_script\\indicator_image\\{date}.png'.format(date=current_day), 'rb'))
 
 
 #%%
