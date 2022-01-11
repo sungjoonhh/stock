@@ -43,6 +43,8 @@ data_list = [['달러','USD/KRW']
 
 data_list2 = [['미국채 10년물','DGS10']
              ,['미국채 2년물','DGS2']
+             ,['원유','POILWTIUSDM']
+             ,['금','GOLDAMGBD228NLBM']
              ]
 
 # data_list3 = [['코스피 PER','1001'],
@@ -51,8 +53,7 @@ data_list2 = [['미국채 10년물','DGS10']
 # data_list4 = [['코스피 PBR','1001'],
 #               ['코스닥 PBR','2001']]
 
-data_list5 = [['원유','POILWTIUSDM']
-             ,['금','GOLDAMGBD228NLBM']
+data_list5 = [
              ]
 
 data_list6 = [['은','LBMA/SILVER','quandl']
@@ -106,19 +107,6 @@ for name,ticker in data_list2 :
     index += 1
 
 #%%
-for name,ticker,data_source in data_list5 :
-    data = pdr.DataReader(ticker, start=start, data_source='fred')
-    data['Close'] = data[ticker]
-    
-    
-    print(index)
-    axs[index].plot(data['Close'].copy(),color = color)
-    axs[index].set_title(str(name)  + ' : ' + str(data['Close'][-1]) +'('+\
-                         calculator +\
-                         str(round((data['Close'][-1]-data['Close'][-2])/data['Close'][-2] * 100,2))+'%)', fontsize=13,fontweight="bold")
-    index += 1
-
-
 
 # for name,ticker in data_list3 :
 #     data = stock.get_index_fundamental(start, end, ticker)

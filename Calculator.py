@@ -106,7 +106,11 @@ class Calculator:
         judge_data = judge_data.join(self.calcRSI(stock_ds, stock_ds.index))
         judge_data = judge_data.join(company_trade_value)
         judge_data = judge_data.reset_index()
+        judge_data.at[judge_data.index[-1], ['agency', 'etc', 'ant', 'foreigner', 'all']] = judge_data.iloc[-2][['agency', 'etc', 'ant', 'foreigner', 'all']].tolist()
+        judge_data.iloc[-1]['rsi'] = judge_data.iloc[-2][['rsi']].tolist()
+
         judge_data['ticker'] = stock_name
+
 
         if stock_market =='한국' :
             judge_data = self.calcVolumn(judge_data)
