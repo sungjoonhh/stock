@@ -75,7 +75,7 @@ while start <= end:
 
         # %%
         high_name_df = post.select_dataframe("""
-            select e.company_name as 회사,e.close as 종가,round(f.rate::numeric,2)::varchar || '%' as 수익률,e.cnt as 횟수 ,f.ranking as 거래순위 ,e.update_time as 날짜,e.thema as 테마
+            select e.company_name as 회사,e.close as 종가,round(f.rate::numeric,2)::varchar || '%%' as 수익률,e.cnt as 횟수 ,f.ranking as 거래순위 ,e.update_time as 날짜,e.thema as 테마
             from (select array_agg(d.thema_name) as thema,c.company_name,c.ticker,c.close,c.update_time,c.{high_name},concat(c.cnt::varchar, '/{high_value}') as cnt
             from (
                 select a.*,b.cnt
