@@ -75,21 +75,21 @@ while start <= end:
 
         # %%
         high_name_df = post.select_dataframe("""
-            select e.*,f.ranking
+            select e.company_name as 회사,e.close as 종가,round(f.rate::numeric,2)::varchar || '%' as 수익률,e.cnt as 횟수 ,f.ranking as 거래순위 ,e.update_time as 날짜,e.thema as 테마
             from (select array_agg(d.thema_name) as thema,c.company_name,c.ticker,c.close,c.update_time,c.{high_name},concat(c.cnt::varchar, '/{high_value}') as cnt
             from (
                 select a.*,b.cnt
                 from krx.daily_{high_name} a
                 left join (
                     select company_name,ticker,count(*) as cnt
-                    from krx.daily_{high_name}
+                    from krx.daily_{high_name} 
                     where update_time <= timestamp '{update_time}'
-                    and update_time >= timestamp '{update_time}' - interval '{high_value}' day
-                    --and company_name ='효성첨단소재'
-                    group by company_name,ticker
-                )b
-                on a.ticker =b.ticker
-                where a.update_time = timestamp '{update_time}'
+            and update_time >= timestamp '{update_time}' - interval '{high_value}' day
+            --and company_name ='효성첨단소재'
+                group by company_name,ticker
+            )b
+            on a.ticker =b.ticker
+            where a.update_time = timestamp '{update_time}'
             )c
             left join stock.thema_stock d
             on c.company_name = d.company_name
@@ -101,7 +101,8 @@ while start <= end:
                 where update_time = timestamp '{update_time}'
             )f
             on e.ticker = f.ticker 
-            order by thema desc
+            where rate !=0
+            order by rate desc
             """.format(update_time=current_day,high_name=high_name,high_value = high_value))
         dfi.export(high_name_df,
                 'C:\\Users\\sungjoon\\GIT\\stock\\daily_script\\{high_name}_image\\{date}.png'.format(date=current_day,high_name=high_name,high_value = high_value),
