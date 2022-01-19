@@ -77,7 +77,7 @@ start = (datetime.datetime.now() - datetime.timedelta(days=365)).strftime('%Y-%m
 current_day = datetime.datetime.now().strftime('%Y%m%d')
 #%%
 fig, axs = plt.subplots(len(data_list)+len(data_list2)+len(data_list5),\
-            constrained_layout=True,figsize=(15,20))
+            constrained_layout=True,figsize=(15,15))
 index = 0
 fig.suptitle(end, fontsize=16)
 #%%
