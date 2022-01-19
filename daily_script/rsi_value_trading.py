@@ -80,6 +80,8 @@ while start <= end:
             
         kkk = data_df[(data_df['rsi']<30) &(data_df['update_time']=='2022-01-19')]
         kkkkk = kkk[kkk ['transaction_amount']>10000000000]
+        
+        kkk.to_csv('C:\\Users\\sungjoon\\Desktop\\2022_01_19.csv')
     
 
         # %%

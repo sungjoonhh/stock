@@ -1,143 +1,138 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Nov 30 21:57:00 2021
-
-@author: sungjoon
+Created on Tue Sep 14 21:40:26 2021
+@author: user
 """
+import pandas as pd
+import pykrx
+from pykrx import stock
+import datetime
 import sys
+
 sys.path.append('C:\\Users\\sungjoon\\libs')
 sys.path.append('C:\\Users\\sungjoon\\GIT\\stock')
-import FinanceDataReader as fdr
-#pip install -U finance-datareader
-import matplotlib.pyplot as plt
-import pandas as pd
-import pandas_datareader as pdr
+from postLib import PostgresDataClass
+# from Telegram import Telegram
 from FileReader import FileReader
 import telegram
 import dataframe_image as dfi
-import matplotlib
 import datetime
-from pykrx import stock
 
-plt.rc('font', family='Malgun Gothic')
+# %%
 
+# telg = Telegram()
+investor_list = ['외국인','기관합계','개인']
+end = datetime.datetime.now()
+start = end - datetime.timedelta(days=30)
+post = PostgresDataClass('192.168.0.3', 'stock', 'postgres', 'tjdwns00!')
 
-#%%
-def daily_calc(df,name):
-    df['Close_YD'] = df['Close'].shift(1)
-    df_tail = df.tail(1)
-
-    return name, df_tail['Close'].values[0], round(((df_tail['Close'] - df_tail['Close_YD'])/df_tail['Close_YD']).values[0]*100,2)
-#%%
+['코스피 코스닥 구분해야됨']
 
 
-data_list = [['달러','USD/KRW']
-             ,['코스피','KS11']
-             ,['코스닥','KQ11']
-             ,['비트코인','BTC/KRW']
-             ,['S&P500','US500']
-             ,['나스닥','IXIC']
-             ,['공포지수','VIX']
-             ]
+while start <= end:
+    df = pd.DataFrame()
+    print (start.strftime('%Y%m%d'))
+    for investor in investor_list :
+        print(investor)
+        current_day = start.strftime('%Y%m%d')
+        try :
+            df1 = stock.get_market_net_purchases_of_equities_by_ticker(current_day, current_day, "KOSDAQ",investor)
+        except : 
+            continue
+        df1['investor'] = investor
+        df1 = df1.reset_index()
+
+        df = df.append(df1)
+        del [[df1]]
+
+    df['update_time'] = start.date()
+
+    tuples = [tuple(x) for x in df.values.tolist()]
+    start += datetime.timedelta(days=1)
+
+    tuple1 = tuples[:1]
+
+    post.insert_list(tuples, 'krx.daily_investor_buysell')
+    del [[df]]
 
 
-data_list2 = [['미국채 10년물','DGS10']
-             ,['미국채 2년물','DGS2']
-             ]
+    #     print(current_day)
+    #     post.execute("""insert into krx.daily_{high_name}
+    #         select c.*,d.{high_name}
+    #         from (select b.company_name,a.ticker,a.close,a.update_time
+    #         from krx.daily_market a
+    #         left join krx.company_ticker b
+    #         on a.ticker = b.ticker
+    #         where a.update_time = timestamp'{date}'
+    #         and a.open !=0
+    #         ) c
+    #         left join (
+    #             select ticker,max(close) as {high_name}
+    #             from krx.daily_market 
+    #             where update_time >timestamp'{date}' - interval '{high_value} week'
+    #             group by ticker
+    #         )d
+    #         on c.ticker = d.ticker
+    #         where close = {high_name}
+    #         on conflict do nothing""".format(date=current_day,high_name= high_name, high_value = high_value))
 
-# data_list3 = [['코스피 PER','1001'],
-#               ['코스닥 PER','2001']]
+    #     # %%
+    #     high_name_df = post.select_dataframe("""
+    #         select e.*,f.ranking
+    #         from (select array_agg(d.thema_name) as thema,c.company_name,c.ticker,c.close,c.update_time,c.{high_name},c.cnt
+    #         from (
+    #             select a.*,b.cnt
+    #             from krx.daily_{high_name} a
+    #             left join (
+    #                 select company_name,ticker,count(*) as cnt
+    #                 from krx.daily_{high_name}
+    #                 where update_time <= timestamp '{update_time}'
+    #                 and update_time >= timestamp '{update_time}' - interval '{high_value}' day
+    #                 --and company_name ='효성첨단소재'
+    #                 group by company_name,ticker
+    #             )b
+    #             on a.ticker =b.ticker
+    #             where a.update_time = timestamp '{update_time}'
+    #         )c
+    #         left join stock.thema_stock d
+    #         on c.company_name = d.company_name
+    #         group by c.company_name,c.ticker,c.close,c.update_time,c.{high_name},c.cnt
+    #         )e
+    #         left join (
+    #             select *,dense_rank() over (order by transaction_amount desc) as ranking
+    #             from krx.daily_market 
+    #             where update_time = timestamp '{update_time}'
+    #         )f
+    #         on e.ticker = f.ticker 
+    #         order by cnt desc
+    #         """.format(update_time=current_day,high_name=high_name,high_value = high_value))
+    #     dfi.export(high_name_df,
+    #             'C:\\Users\\sungjoon\\GIT\\stock\\daily_script\\{high_name}_image\\{date}.png'.format(date=current_day,high_name=high_name,high_value = high_value),
+    #             max_cols=-1, max_rows=-1)
 
-# data_list4 = [['코스피 PBR','1001'],
-#               ['코스닥 PBR','2001']]
+    #     # %%
 
-data_list5 = [['원유','POILWTIUSDM']
-             ,['금','GOLDAMGBD228NLBM']
-             ]
+    #     # lst = []
+    #     # for ticker in stock.get_market_ticker_list(market='KOSDAQ'):
+    #     #         company = stock.get_market_ticker_name(ticker)
+    #     #         lst = lst + [(ticker,company)]
 
-data_list6 = [['은','LBMA/SILVER','quandl']
-             ,['구리','LME/PR_CU''quandl']
-             ]
+    #     #         #%%
 
+    #     # post = PostgresDataClass('192.168.0.3','stock','postgres','tjdwns00!')
+    #     # post.insert_list(lst, 'krx.company_ticker')
 
-#%%
-filereader = FileReader()
-telg_dict = filereader.read_data('C:\\Users\\sungjoon\\libs\\telegram.txt')
-token = telg_dict['token']
-chat_id = telg_dict['chat_id']
-bot = telegram.Bot(token=token)
+    #     high_name_html = '<pre>' + high_name_df.to_html() + '</pre>'
 
-chat_id = chat_id
+    #     filereader = FileReader()
+    #     telg_dict = filereader.read_data('C:\\Users\\sungjoon\\libs\\telegram.txt')
+    #     token = telg_dict['token']
+    #     chat_id = telg_dict['chat_id']
+    #     bot = telegram.Bot(token=token)
 
+    #     chat_id = chat_id
+    #     bot.send_photo(chat_id, caption = '{high_value}주 신고가'.format(high_value = high_value), photo=open(
+    #         'C:\\Users\\sungjoon\\GIT\\stock\\daily_script\\{high_name}_image\\{date}.png'.format(date=current_day,high_name=high_name,high_value = high_value), 'rb'))
 
-end = datetime.datetime.now().strftime('%Y-%m-%d')
-start = (datetime.datetime.now() - datetime.timedelta(days=365)).strftime('%Y-%m-%d')
-
-current_day = datetime.datetime.now().strftime('%Y%m%d')
-#%%
-fig, axs = plt.subplots(len(data_list)+len(data_list2)+len(data_list5),\
-            constrained_layout=True,figsize=(15,15))
-index = 0
-fig.suptitle(end, fontsize=16)
-#%%
-for name,ticker in data_list :
-    date = fdr.DataReader(ticker, start=start)
-    color = 'red' if (date['Close'][-1]-date['Close'][-2])/date['Close'][-2] >0 else 'blue'
-    calculator = '+' if (date['Close'][-1]-date['Close'][-2])/date['Close'][-2] >0 else ''
-    
-    
-    print(index)
-    axs[index].plot(date['Close'].copy(),color)
-    axs[index].set_title(str(name)  + ' : ' + str(date['Close'][-1]) +'('+\
-                         calculator +\
-                         str(round((date['Close'][-1]-date['Close'][-2])/date['Close'][-2] * 100,2))+'%)', fontsize=13,fontweight="bold")
-    # value_list = value_list + [daily_calc(date,name)]
-    index += 1
-#%%
-for name,ticker in data_list2 :
-    data = fdr.DataReader(ticker, start=start, data_source='fred')
-    data['Close'] = data[ticker]
-    
-    print(index)
-    axs[index].plot(data['Close'].copy(),color = color)
-    axs[index].set_title(str(name)  + ' : ' + str(data['Close'][-1]) +'('+\
-                         calculator +\
-                         str(round((data['Close'][-1]-data['Close'][-2])/data['Close'][-2] * 100,2))+'%)', fontsize=13,fontweight="bold")
-    index += 1
-
-#%%
-for name,ticker in data_list5 :
-    data = pdr.DataReader(ticker, start=start, data_source='fred')
-    data['Close'] = data[ticker]
-    data = data.dropna()
-    
-    print(index)
-    axs[index].plot(data['Close'].copy(),color = color)
-    axs[index].set_title(str(name)  + ' : ' + str(data['Close'][-1]) +'('+\
-                         calculator +\
-                         str(round((data['Close'][-1]-data['Close'][-2])/data['Close'][-2] * 100,2))+'%)', fontsize=13,fontweight="bold")
-    index += 1
-
-
-
-# for name,ticker in data_list3 :
-#     data = stock.get_index_fundamental(start, end, ticker)
-#     data['PER'] = data['PER']
-#     axs[index].plot(data['PER'].copy())
-#     axs[index].set_title(str(name) + ' : ' + str(data['PER'].tail(1).values[0]))
-#     index += 1
-     
-# for name,ticker in data_list4 :
-#     data = stock.get_index_fundamental(start, end, ticker)
-#     data['PBR'] = data['PBR']
-#     axs[index].plot(data['PBR'].copy())
-#     axs[index].set_title(str(name) + ' : ' + str(data['PBR'].tail(1).values[0]))
-#     index += 1
-
-plt.savefig('C:\\Users\\sungjoon\\GIT\\stock\\daily_script\\indicator_image\\{date}.png'.format(date=current_day),dpi=300)
-
-bot.send_photo(chat_id, caption = '지수', photo=open(
-    'C:\\Users\\sungjoon\\GIT\\stock\\daily_script\\indicator_image\\{date}.png'.format(date=current_day), 'rb'))
-
-
-#%%
+    #     del [[high_name_df]]
+    # start += datetime.timedelta(days=1)
