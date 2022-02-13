@@ -43,8 +43,8 @@ data_list = [['달러','USD/KRW']
 
 data_list2 = [['미국채 10년물','DGS10']
              ,['미국채 2년물','DGS2']
-             ,['원유','POILWTIUSDM']
-             ,['금','GOLDAMGBD228NLBM']
+             # ,['원유','POILWTIUSDM']
+             # ,['금','GOLDAMGBD228NLBM']
              ]
 
 # data_list3 = [['코스피 PER','1001'],
@@ -87,7 +87,7 @@ for name,ticker in data_list :
     calculator = '+' if (date['Close'][-1]-date['Close'][-2])/date['Close'][-2] >0 else ''
     
     
-    print(index)
+    print(name)
     axs[index].plot(date['Close'].copy(),color)
     axs[index].set_title(str(name)  + ' : ' + str(date['Close'][-1]) +'('+\
                          calculator +\
@@ -99,7 +99,7 @@ for name,ticker in data_list2 :
     data = fdr.DataReader(ticker, start=start, data_source='fred')
     data['Close'] = data[ticker]
     
-    print(index)
+    print(name)
     axs[index].plot(data['Close'].copy(),color = color)
     axs[index].set_title(str(name)  + ' : ' + str(data['Close'][-1]) +'('+\
                          calculator +\
