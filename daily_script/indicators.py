@@ -18,6 +18,7 @@ import dataframe_image as dfi
 import matplotlib
 import datetime
 from pykrx import stock
+import pandas_datareader.data as web
 
 plt.rc('font', family='Malgun Gothic')
 
@@ -53,7 +54,8 @@ data_list2 = [['미국채 10년물','DGS10']
 # data_list4 = [['코스피 PBR','1001'],
 #               ['코스닥 PBR','2001']]
 
-data_list5 = [
+data_list5 = [['금','GLD']
+             ,['원유','OIL']
              ]
 
 data_list6 = [['은','LBMA/SILVER','quandl']
@@ -102,6 +104,17 @@ for name,ticker in data_list2 :
     print(name)
     axs[index].plot(data['Close'].copy(),color = color)
     axs[index].set_title(str(name)  + ' : ' + str(data['Close'][-1]) +'('+\
+                         calculator +\
+                         str(round((data['Close'][-1]-data['Close'][-2])/data['Close'][-2] * 100,2))+'%)', fontsize=13,fontweight="bold")
+    index += 1
+#%%
+for name,ticker in data_list5 :
+    data = web.DataReader(ticker, "yahoo", start)
+
+    
+    print(name)
+    axs[index].plot(data['Close'].copy(),color = color)
+    axs[index].set_title(str(name)  + ' : ' + str(round(data['Close'][-1],2)) +'('+\
                          calculator +\
                          str(round((data['Close'][-1]-data['Close'][-2])/data['Close'][-2] * 100,2))+'%)', fontsize=13,fontweight="bold")
     index += 1
